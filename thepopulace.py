@@ -1,6 +1,8 @@
 import random
 import sys
 
+import numpy as np
+
 
 def get_amount(from_n, to_n, step):
     """ Get amount. """
@@ -24,7 +26,7 @@ def initialize_population(population_size):
     return population
 
 
-def iterate_population(population, step):
+def iterate_population(population, step, allow_negative=False):
     """ Iterate over the population. """
 
     population_size = len(population) - 1
@@ -35,13 +37,17 @@ def iterate_population(population, step):
     amount = get_amount(from_n, to_n, step)
 
     # Transfer amount from from_n to to_n
-    population[from_n] -= amount
-    population[to_n] += amount
+    if allow_negative or amount < population[from_n]:
+        population[from_n] -= amount
+        population[to_n] += amount
+
+        assert population[from_n] > 0.0, population[from_n]
+        assert population[to_n] > 0.0, population[to_n]
 
 
-def calculate_histogram(population, bins=4):
+def calculate_histogram(population, bins=6):
     maximum = max(population)
-    minimum = 0.0
+    minimum = min(population)
 
     binsize = (maximum - minimum) / bins
 
@@ -63,16 +69,20 @@ def calculate_histogram(population, bins=4):
     return (bin_counts, bin_ranges)
 
 
-def run_model(population_size=100, steps=100):
+def print_histogram(population):
+    bin_counts, bin_ranges = np.histogram(population, bins=6)
+
+    for n in xrange(len(bin_counts)):
+        print 'bin: {} count: {} range: {}'.format(n, bin_counts[n], bin_ranges[n])
+
+
+def run_model(population_size=600, steps=10000):
     population = initialize_population(population_size)
 
     for step in xrange(steps):
         iterate_population(population, step)
 
-    bin_counts, bin_ranges = calculate_histogram(population)
-
-    for n in xrange(len(bin_counts)):
-        print n, bin_counts[n], bin_ranges[n]
+    print_histogram(population)
 
 
 def main(argv=None):
