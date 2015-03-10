@@ -2,6 +2,7 @@ import random
 import sys
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def get_amount(from_n, to_n, step):
@@ -41,9 +42,6 @@ def iterate_population(population, step, allow_negative=False):
         population[from_n] -= amount
         population[to_n] += amount
 
-        assert population[from_n] > 0.0, population[from_n]
-        assert population[to_n] > 0.0, population[to_n]
-
 
 def calculate_histogram(population, bins=6):
     maximum = max(population)
@@ -70,6 +68,10 @@ def calculate_histogram(population, bins=6):
 
 
 def print_histogram(population):
+    plt.figure()
+    plt.hist(population, bins=100)
+    plt.show()
+
     bin_counts, bin_ranges = np.histogram(population, bins=6)
 
     for n in xrange(len(bin_counts)):
